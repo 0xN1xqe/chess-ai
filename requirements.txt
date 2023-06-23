@@ -3,3 +3,4 @@ jupyter
 pandas
 numpy
 matplotlib
+pygame
