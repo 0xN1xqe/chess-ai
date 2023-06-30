@@ -1,11 +1,13 @@
 # https://python-chess.readthedocs.io/en/latest/
 # https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+import positions as p
+
 import chess
+import time
 
 
 # Evaluation function to assign a score to a given chess position
-def evaluate(board):
-    # In this example, we simply count the material advantage for the side to move
+def evaluate_values(board, is_white):
     score = 0
     piece_values = {
         chess.PAWN: 1,
@@ -17,26 +19,78 @@ def evaluate(board):
 
     for square in chess.SQUARES:
         piece = board.piece_at(square)
+        # ignore all pieces that are none or king
         if piece is not None and piece.piece_type != 6:
             value = piece_values.get(piece.piece_type)
-            if piece.color == chess.WHITE:
-                score += value
+            if is_white:
+                if piece.color == chess.WHITE:
+                    score += value
+                else:
+                    score -= value
             else:
-                score -= value
+                if piece.color == chess.BLACK:
+                    score += value
+                else:
+                    score -= value
+
+    return score
+
+
+def pieces_of_my_color(board, is_white):
+    score = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        # ignore all pieces that are none or king
+        if piece is not None and piece.piece_type != 6:
+            if is_white:
+                if piece.color == chess.WHITE:
+                    score += 1
+            else:
+                if piece.color == chess.BLACK:
+                    score += 1
+    return score
+
+
+def evaluate_positions(board, is_white):
+    score = 0
+
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        number_to_pieces = {
+            1: p.Pawn,
+            2: p.Knight,
+            3: p.Bishop,
+            4: p.Rook,
+            5: p.Queen,
+            6: p.KingEarly if pieces_of_my_color(board, is_white) > 16*0.60 else p.KingLate,
+        }
+
+        if piece is not None:
+            positions = number_to_pieces.get(piece.piece_type)
+            if is_white:
+                if piece.color == chess.WHITE:
+                    score += positions[square]
+                else:
+                    score -= positions[square]
+            else:
+                if piece.color == chess.BLACK:
+                    score += positions.reverse()[square]
+                else:
+                    score -= positions.reverse()[square]
 
     return score
 
 
 # Minimax function with alpha-beta pruning
-def minimax(board, depth, alpha, beta, maximizing_player):
+def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param, position_param):
     if depth == 0 or board.is_game_over():
-        return evaluate(board)
+        return values_param * evaluate_values(board, is_white) + position_param * evaluate_positions(board, is_white)
 
     if maximizing_player:
         max_eval = float('-inf')
         for move in board.legal_moves:
             board.push(move)
-            max_eval = max(max_eval, minimax(board, depth - 1, alpha, beta, False))
+            max_eval = max(max_eval, minimax(board, depth - 1, alpha, beta, False, is_white, values_param, position_param))
             board.pop()
             alpha = max(alpha, max_eval)
             if alpha >= beta:
@@ -46,7 +100,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
         min_eval = float('inf')
         for move in board.legal_moves:
             board.push(move)
-            min_eval = min(min_eval, minimax(board, depth - 1, alpha, beta, True))
+            min_eval = min(min_eval, minimax(board, depth - 1, alpha, beta, True, is_white, values_param, position_param))
             board.pop()
             beta = min(beta, min_eval)
             if beta <= alpha:
@@ -55,14 +109,14 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 
 
 # Main function to initiate the minimax search
-def find_best_move(board, depth):
+def find_best_move(board, depth, is_white, values_param, position_param):
     best_eval = float('-inf')
     best_move = None
     alpha = float('-inf')
     beta = float('inf')
     for move in board.legal_moves:
         board.push(move)
-        move_eval = minimax(board, depth - 1, alpha, beta, False)
+        move_eval = minimax(board, depth - 1, alpha, beta, False, is_white, values_param, position_param)
         board.pop()
         if move_eval > best_eval:
             best_eval = move_eval
@@ -70,7 +124,28 @@ def find_best_move(board, depth):
     return best_move
 
 
-# Example usage
-board = chess.Board()
-best_move = find_best_move(board, depth=3)
-print("Best move:", best_move)
+if __name__ == "__main__":
+
+    start_time = time.time()
+
+    # depth 3: 0.086698 s
+    # depth 4: 1.0492200 s
+    # depth 5: 4.04507160 s
+    # depth 6: 58.5809996 s
+    # depth 7: 268.734338 s
+
+    # Best move: g1f3
+    # 4.747699 seconds
+
+    # Best move: g1h3
+    # 3.660270 seconds
+
+    # Best move: g1f3
+    # 5.343630 seconds
+
+    # Example usage
+    board = chess.Board()
+    best_move = find_best_move(board, 3, True, 1, 0.1)
+    print("Best move:", best_move)
+
+    print(f"{time.time() - start_time:.6f} seconds")
