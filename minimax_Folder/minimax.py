@@ -82,6 +82,19 @@ def evaluate_positions(board, is_white):
 
 
 def evaluate_values_and_positions(board, is_white, values_param, positions_param):
+    if board.is_game_over() and board.is_checkmate():
+        color = chess.Outcome.winner
+        if is_white:
+            if color == chess.WHITE:
+                return float('inf')
+            else:
+                return float('-inf')
+        else:
+            if color == chess.BLACK:
+                return float('inf')
+            else:
+                return float('-inf')
+
     values_score = 0
     positions_score = 0
 
@@ -131,7 +144,7 @@ def evaluate_values_and_positions(board, is_white, values_param, positions_param
 
 
 # Minimax function with alpha-beta pruning
-def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param, position_param):
+def minimax_algorithm(board, depth, alpha, beta, maximizing_player, is_white, values_param, position_param):
     if depth == 0 or board.is_game_over():
         # return values_param * evaluate_values(board, is_white) + position_param * evaluate_positions(board, is_white)
         return evaluate_values_and_positions(board, is_white, values_param, position_param)
@@ -140,7 +153,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param
         max_eval = float('-inf')
         for move in board.legal_moves:
             board.push(move)
-            max_eval = max(max_eval, minimax(board, depth - 1, alpha, beta, False, is_white, values_param, position_param))
+            max_eval = max(max_eval, minimax_algorithm(board, depth - 1, alpha, beta, False, is_white, values_param, position_param))
             board.pop()
             alpha = max(alpha, max_eval)
             if alpha >= beta:
@@ -150,7 +163,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param
         min_eval = float('inf')
         for move in board.legal_moves:
             board.push(move)
-            min_eval = min(min_eval, minimax(board, depth - 1, alpha, beta, True, is_white, values_param, position_param))
+            min_eval = min(min_eval, minimax_algorithm(board, depth - 1, alpha, beta, True, is_white, values_param, position_param))
             board.pop()
             beta = min(beta, min_eval)
             if beta <= alpha:
@@ -158,7 +171,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param
         return min_eval
 
 
-# Main function to initiate the minimax search
+# Main function to initiate the minimax_Folder search
 def find_best_move(board, depth, is_white, values_param, position_param):
     best_eval = float('-inf')
     best_move = None
@@ -166,7 +179,7 @@ def find_best_move(board, depth, is_white, values_param, position_param):
     beta = float('inf')
     for move in board.legal_moves:
         board.push(move)
-        move_eval = minimax(board, depth - 1, alpha, beta, False, is_white, values_param, position_param)
+        move_eval = minimax_algorithm(board, depth - 1, alpha, beta, False, is_white, values_param, position_param)
         board.pop()
         if move_eval > best_eval:
             best_eval = move_eval
