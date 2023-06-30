@@ -81,10 +81,60 @@ def evaluate_positions(board, is_white):
     return score
 
 
+def evaluate_values_and_positions(board, is_white, values_param, positions_param):
+    values_score = 0
+    positions_score = 0
+
+    piece_values = {
+        chess.PAWN: 1,
+        chess.BISHOP: 3,
+        chess.KNIGHT: 3,
+        chess.ROOK: 5,
+        chess.QUEEN: 9
+    }
+
+    number_to_pieces = {
+        1: p.Pawn,
+        2: p.Knight,
+        3: p.Bishop,
+        4: p.Rook,
+        5: p.Queen,
+        6: p.KingEarly if len(board.move_stack) < 20 else p.KingLate,
+    }
+
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        # ignore all pieces that are none or king
+        if piece is not None:
+            value = piece_values.get(piece.piece_type)
+            positions = number_to_pieces.get(piece.piece_type)
+            if is_white:
+                if piece.color == chess.WHITE:
+                    positions_score += positions[square]
+                    if piece.piece_type != 6:
+                        values_score += value
+                else:
+                    positions_score -= positions[square]
+                    if piece.piece_type != 6:
+                        values_score -= value
+            else:
+                if piece.color == chess.BLACK:
+                    positions_score += positions[square]
+                    if piece.piece_type != 6:
+                        values_score += value
+                else:
+                    positions_score -= positions[square]
+                    if piece.piece_type != 6:
+                        values_score -= value
+
+    return positions_param * positions_score + values_param * values_score
+
+
 # Minimax function with alpha-beta pruning
 def minimax(board, depth, alpha, beta, maximizing_player, is_white, values_param, position_param):
     if depth == 0 or board.is_game_over():
-        return values_param * evaluate_values(board, is_white) + position_param * evaluate_positions(board, is_white)
+        # return values_param * evaluate_values(board, is_white) + position_param * evaluate_positions(board, is_white)
+        return evaluate_values_and_positions(board, is_white, values_param, position_param)
 
     if maximizing_player:
         max_eval = float('-inf')
@@ -145,7 +195,7 @@ if __name__ == "__main__":
 
     # Example usage
     board = chess.Board()
-    best_move = find_best_move(board, 3, True, 1, 0.1)
+    best_move = find_best_move(board, 4, True, 1, 1)
     print("Best move:", best_move)
 
     print(f"{time.time() - start_time:.6f} seconds")
