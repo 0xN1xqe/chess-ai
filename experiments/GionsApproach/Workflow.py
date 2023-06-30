@@ -42,6 +42,7 @@ class Workflow:
             print("starting match number: " + str(matches_played) + "\n")
             while True:
                 encoded_board = Converter.board_to_int_array(board)
+                encoded_board = np.append(encoded_board, [[turn % 2]], axis=1)
                 # let the model who´s turn it is run
                 move = Helper.make_move(models[turn % 2], encoded_board)
 
