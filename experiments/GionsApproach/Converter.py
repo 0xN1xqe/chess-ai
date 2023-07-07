@@ -6,18 +6,20 @@ class Converter:
     def board_string_to_int_array(board):
         int_array = []
         int_array_e = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
         int_array_p = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         int_array_r = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         int_array_n = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         int_array_b = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
         int_array_k = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
         int_array_q = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-        int_array_P = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
-        int_array_R = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-        int_array_N = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-        int_array_B = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-        int_array_K = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
-        int_array_Q = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
+        int_array_P = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+        int_array_R = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+        int_array_N = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+        int_array_B = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        int_array_K = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+        int_array_Q = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
         for x in board:
             if x == "p":
                 int_array.append(int_array_p)
