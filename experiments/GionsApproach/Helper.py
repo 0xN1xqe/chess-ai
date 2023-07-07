@@ -40,17 +40,50 @@ class Helper:
         model.set_weights(modified_weights)
 
     @staticmethod
-    def make_move(model, encoded_board):
+    def make_move(model, encoded_board, board, turn):
         result = model.predict(encoded_board).reshape(4100)
-        index_max = np.argmax(result)
-        print("Attempt move #" + str(index_max))
+        normal_move_res = result[:4096]
+        promotion_res = result[-4:]
+
+        if turn % 2 == 1:
+            normal_move_res = normal_move_res[::-1]
+
+        index_max_normal = np.argmax(normal_move_res)
+        index_max_promotion = np.argmax(promotion_res)
+        square_number_from = index_max_normal // 64
+        square_number_to = index_max_normal % 64
+        square = chess.square(chess.square_file(square_number_from), chess.square_rank(square_number_from))
+        piece = board.piece_at(square)
         move = None
-        if index_max >= 4096:
-            # promote a pawn
-            move = chess.Move(0, 0, index_max - 4096)
+        # if a pawn is moved...
+        if piece is not None and piece.piece_type == chess.PAWN:
+            # to a back-rank
+            if square_number_to % 8 == 0 or square_number_to % 8 == 7:
+                # move with promotion
+                piece_to_promote_to = None
+                if index_max_promotion == 0:
+                    piece_to_promote_to = chess.QUEEN
+                    pass
+                elif index_max_promotion == 1:
+                    piece_to_promote_to = chess.ROOK
+                    pass
+                elif index_max_promotion == 2:
+                    piece_to_promote_to = chess.BISHOP
+                    pass
+                elif index_max_promotion == 3:
+                    piece_to_promote_to = chess.KNIGHT
+                    pass
+                else:
+                    pass
+                move = chess.Move(square_number_from, square_number_to, piece_to_promote_to)
         else:
-            # make a normal move
-            piece_from = index_max // 64
-            piece_to = index_max % 64
-            move = chess.Move(piece_from, piece_to)
+            move = chess.Move(square_number_from, square_number_to)
+
+        fromString = chess.square_name(square_number_from)
+        toString = chess.square_name(square_number_to)
+        if piece is None:
+            print("Attempt moving from an empty square (" + fromString + ") to " + toString)
+        else:
+            print("Attempt moving " + piece.symbol() + " from " + fromString + " to " + toString)
+
         return move

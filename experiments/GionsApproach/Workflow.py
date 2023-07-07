@@ -15,9 +15,9 @@ class Workflow:
         model_1 = StorageHandler.load_model_1()
 
         # if models are not initialized, create new ones
-        if model_0 is None:
+        if model_0 is None or True:
             model_0 = ModelFactory.create()
-        if model_1 is None:
+        if model_1 is None or True:
             model_1 = ModelFactory.create()
 
         # store models in an array
@@ -39,9 +39,12 @@ class Workflow:
             print("starting match number: " + str(matches_played) + "\n")
             while True:
                 encoded_board = Converter.board_to_int_array(board)
-                encoded_board = np.append(encoded_board, [[turn % 2]], axis=1)
+                # if its blacks turn, rotate the board
+                if turn % 2 == 1:
+                    encoded_board = encoded_board[:, ::-1]
+
                 # let the model who´s turn it is run
-                move = Helper.make_move(models[turn % 2], encoded_board)
+                move = Helper.make_move(models[turn % 2], encoded_board, board, turn)
 
                 if board.is_legal(move):
                     board.push(move)
@@ -51,7 +54,9 @@ class Workflow:
 
                     # if the invalid move is made in the first turn, let the other model make a move as well
                     if turn == 0:
-                        move = Helper.make_move(models[(loser + 1) % 2], encoded_board)
+                        # rotate the board so the other player can move
+                        encoded_board = encoded_board[:, ::-1]
+                        move = Helper.make_move(models[(loser + 1) % 2], encoded_board, board, turn)
                         # if the others models move is illegal as well create both new from scratch
                         if not board.is_legal(move):
                             models[0] = ModelFactory.create()
