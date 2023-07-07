@@ -21,8 +21,20 @@ class ConfigReader:
         return config_element_value
 
     @staticmethod
-    def read_model_storage_directory():
-        return ConfigReader.read("model_storage_directory")
+    def read_model_storage_directory_arch_0():
+        return ConfigReader.read("model_storage_directory_arch_0")
+
+    @staticmethod
+    def read_model_storage_directory_neurons_0():
+        return ConfigReader.read("model_storage_directory_neurons_0")
+
+    @staticmethod
+    def read_model_storage_directory_arch_1():
+        return ConfigReader.read("model_storage_directory_arch_1")
+
+    @staticmethod
+    def read_model_storage_directory_neurons_1():
+        return ConfigReader.read("model_storage_directory_neurons_1")
 
     @staticmethod
     def read_modification_factor():

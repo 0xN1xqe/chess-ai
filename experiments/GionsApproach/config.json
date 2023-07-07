@@ -1,5 +1,8 @@
 {
-    "model_storage_directory": "C:\\Users\\Gion\\Desktop\\Uni\\ML\\Schachprojekt",
+    "model_storage_directory_arch_0": "C:\\Users\\Gion\\Desktop\\Uni\\ML\\Schachprojekt\\models_arch_0",
+    "model_storage_directory_neurons_0": "C:\\Users\\Gion\\Desktop\\Uni\\ML\\Schachprojekt\\m0\\models_neurons_0",
+    "model_storage_directory_arch_1": "C:\\Users\\Gion\\Desktop\\Uni\\ML\\Schachprojekt\\models_arch_1",
+    "model_storage_directory_neurons_1": "C:\\Users\\Gion\\Desktop\\Uni\\ML\\Schachprojekt\\m1\\models_neurons_1",
     "modification_factor": 0.01,
-    "save_frequency": 100
+    "save_frequency": 20
 }

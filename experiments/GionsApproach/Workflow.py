@@ -11,16 +11,13 @@ from experiments.GionsApproach.StorageHandler import StorageHandler
 class Workflow:
     @staticmethod
     def Work():
-        model_0 = None
-        model_1 = None
-        # check if two models are already saved
-        if len(StorageHandler.get_files_in_directory()) == 2:
-            # if two exist, load them in
-            model_0 = StorageHandler.load_model_from_json(StorageHandler.get_files_in_directory()[0])
-            model_1 = StorageHandler.load_model_from_json(StorageHandler.get_files_in_directory()[1])
-        else:
-            # otherwise create new ones
+        model_0 = StorageHandler.load_model_0()
+        model_1 = StorageHandler.load_model_1()
+
+        # if models are not initialized, create new ones
+        if model_0 is None:
             model_0 = ModelFactory.create()
+        if model_1 is None:
             model_1 = ModelFactory.create()
 
         # store models in an array
@@ -87,8 +84,8 @@ class Workflow:
 
                 if matches_played % save_frequency == 0:
                     print("Saving models to json files..." + "\n")
-                    StorageHandler.save_model_to_json(models[0], "model_0")
-                    StorageHandler.save_model_to_json(models[1], "model_1")
+                    StorageHandler.save_model_0(models[0])
+                    StorageHandler.save_model_1(models[1])
                     print("Done" + "\n")
 
 
