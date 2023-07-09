@@ -82,18 +82,18 @@ def evaluate_positions(board, is_white):
 
 
 def evaluate_values_and_positions(board, is_white, values_param, positions_param):
-    if board.is_game_over() and board.is_checkmate():
-        color = chess.Outcome.winner
+    if board.is_checkmate():
+        color = chess.BLACK if board.outcome().result()[0] == "0" else chess.WHITE
         if is_white:
             if color == chess.WHITE:
-                return float('inf')
+                return 8000000000
             else:
-                return float('-inf')
+                return -8000000000
         else:
             if color == chess.BLACK:
-                return float('inf')
+                return 8000000000
             else:
-                return float('-inf')
+                return -8000000000
 
     values_score = 0
     positions_score = 0
