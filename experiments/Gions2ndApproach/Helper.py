@@ -44,6 +44,24 @@ class Helper:
     @staticmethod
     def int_to_color(input_int):
         if input_int == 0:
-            return "white"
+            return "White"
         else:
-            return "black"
+            return "Black"
+
+    @staticmethod
+    def print_game_result(games_played, turn, draw, winner):
+        round_number_string_length_max = 5
+        turn_string_length_max = 3
+        msg = "Done playing round number "
+        for i in range(len(str(games_played)), round_number_string_length_max):
+            msg += " "
+        msg += str(games_played) + "; "
+        for i in range(len(str(turn)), turn_string_length_max):
+            msg += " "
+        msg += str(turn + 1) + " moves were played. Winner:   "
+
+        if draw:
+            msg += "Draw"
+        else:
+            msg += Helper.int_to_color(winner)
+        print(msg)

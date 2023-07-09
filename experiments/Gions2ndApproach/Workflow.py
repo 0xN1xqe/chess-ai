@@ -57,9 +57,4 @@ class Workflow:
                 StorageHandler.save_model(models[0], model_name_1)
                 StorageHandler.save_model(models[1], model_name_2)
 
-            msg = "Done playing round number " + str(games_played) + "; " + str(turn + 1) + " moves were played. \t"
-            if draw:
-                msg += "Game ended in a draw"
-            else:
-                msg += Helper.int_to_color(winner) + " won"
-            print(msg)
+            Helper.print_game_result(games_played, turn, draw, winner)
