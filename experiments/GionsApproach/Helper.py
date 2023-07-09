@@ -4,7 +4,7 @@ import chess
 import numpy as np
 from keras.models import clone_model
 
-from experiments.GionsApproach.ConfigReader import ConfigReader
+from experiments.Gions2ndApproach.ConfigReader import ConfigReader
 
 
 class Helper:
@@ -41,6 +41,9 @@ class Helper:
 
     @staticmethod
     def make_move(model, encoded_board, board, turn):
+        # strategy = tf.distribute.MirroredStrategy()
+
+        # with strategy.scope():
         result = model.predict(encoded_board).reshape(4100)
         normal_move_res = result[:4096]
         promotion_res = result[-4:]

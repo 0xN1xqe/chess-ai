@@ -1,9 +1,7 @@
-import keras
-import os
-
-from experiments.GionsApproach.ConfigReader import ConfigReader
-from experiments.GionsApproach.ModelFactory import ModelFactory
+from experiments.Gions2ndApproach.ConfigReader import ConfigReader
 from keras.models import model_from_json
+
+from experiments.Gions2ndApproach.NNFactory import NNFactory
 
 
 class StorageHandler:
@@ -36,7 +34,7 @@ class StorageHandler:
             loaded_model.load_weights(json_path_neurons)
             return loaded_model
         except Exception as e:
-            return None
+            return NNFactory.create_v1()
 
     @staticmethod
     def load_model_0():

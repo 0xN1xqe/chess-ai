@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Converter:
+class Encoder:
     @staticmethod
     def board_string_to_int_array(board):
         int_array = []
@@ -52,5 +52,5 @@ class Converter:
     @staticmethod
     def board_to_int_array(board):
         state = str(board).replace("\n", "")
-        encoded_board = np.array(Converter.board_string_to_int_array(state)).reshape(1, 768)
+        encoded_board = np.array(Encoder.board_string_to_int_array(state)).reshape(1, 768)
         return encoded_board
