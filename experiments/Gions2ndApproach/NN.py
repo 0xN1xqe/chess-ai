@@ -37,13 +37,21 @@ class NeuralNetwork(nn.Module):
     def evaluate_all_boards(self, encoded_boards):
         evaluations = []
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # Check if GPU is available
-        for i in range(len(encoded_boards)):
-            # Convert input data to PyTorch tensor and float type
-            x = torch.from_numpy(encoded_boards[i]).float().to(device)
-            for hidden_layer in self.hidden_layers:
-                x = torch.relu(x)
-            x = self.output_layer(x)
-            evaluations.append(float(x))
+
+        # Convert input data to PyTorch tensors and float type
+        encoded_boards_tensor = torch.tensor(encoded_boards).float().to(device)
+
+        # Apply ReLU activation to all hidden layers at once
+        for hidden_layer in self.hidden_layers:
+            encoded_boards_tensor = torch.relu(encoded_boards_tensor)
+
+        # Compute evaluations in batches
+        output = self.output_layer(encoded_boards_tensor)
+        evaluations = output.squeeze().tolist()
+
+        if isinstance(evaluations, float):
+            evaluations = [evaluations]
+
         return evaluations
 
     def create_copy(self):

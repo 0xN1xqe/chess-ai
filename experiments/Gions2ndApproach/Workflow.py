@@ -1,4 +1,5 @@
 import chess
+import time
 
 from experiments.Gions2ndApproach.ConfigReader import ConfigReader
 from experiments.Gions2ndApproach.Helper import Helper
@@ -23,10 +24,13 @@ class Workflow:
         iterations = 0
         summed_moves = 0
         summed_checkmates = 0
+        summed_moves_per_iteration = 0
+        summed_checkmates_per_iteration = 0
+        combinations = Helper.generate_chess_combinations(number_of_models)
+        number_of_matches = len(combinations)
         while True:
+            start_time = time.time()
             boards = []
-            combinations = Helper.generate_chess_combinations(number_of_models)
-            number_of_matches = len(combinations)
             for i in range(number_of_matches):
                 boards.append(chess.Board())
             turn = 0
@@ -53,18 +57,20 @@ class Workflow:
                     else:
                         boards[i] = possible_boards[evaluations.index(min(evaluations))]
 
+                    summed_moves_per_iteration += 1
+                    summed_moves += turn + 1
+
                     # check if the game is over
                     if boards[i].is_checkmate():
                         winners[i] = (turn % 2)
+                        summed_checkmates_per_iteration += 1
                         summed_checkmates += 1
-                        summed_moves += turn + 1
                         ongoing_matches -= 1
                         break
 
                     if boards[i].is_stalemate() or boards[i].is_insufficient_material() or boards[i].is_seventyfive_moves() or boards[i].is_fivefold_repetition():
                         material_values = Helper.calculate_material(boards[i])
                         winners[i] = material_values.index(max(material_values))
-                        summed_moves += turn + 1
                         ongoing_matches -= 1
                         break
 
@@ -84,10 +90,12 @@ class Workflow:
             for i in range(number_of_models):
                 models[i] = new_models[i]
 
-            Helper.print_game_result_v2(iterations, summed_moves, summed_checkmates, number_of_models)
+            Helper.print_game_result_v2(iterations, summed_moves_per_iteration, summed_checkmates_per_iteration, number_of_matches)
+            summed_moves_per_iteration = 0
+            summed_checkmates_per_iteration = 0
 
             # safe every now and then
-            if games_played % safe_frequency == 0:
+            if iterations % safe_frequency == 0:
                 for i in range(number_of_models):
                     StorageHandler.save_model(models[i], "m" + str(i))
                 Helper.append_integers_to_file(
@@ -95,5 +103,9 @@ class Workflow:
                     summed_moves, summed_checkmates, safe_frequency)
                 summed_moves = 0
                 summed_checkmates = 0
+
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print(f"Execution time: {execution_time} seconds \n --------------------------------------------------")
 
 

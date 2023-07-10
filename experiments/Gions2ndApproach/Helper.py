@@ -121,9 +121,8 @@ class Helper:
 
     @staticmethod
     def print_game_result_v2(iteration, summed_turns, summed_checkmate, matches_per_iteration):
-        msg = "Iteration:              " + str(iteration) + "\n"
-        msg += "Average turns per game: " + str(summed_turns / matches_per_iteration) + "\n"
-        msg += "Checkmate ratio:        " + str(summed_checkmate / matches_per_iteration) + "\n"
-        msg += "----------------------------------------------------------------" + "\n"
+        msg = "Iteration:               " + str(iteration) + "\n"
+        msg += "Average turns per game:  " + str(round((summed_turns / matches_per_iteration),1)) + "\n"
+        msg += "Checkmate ratio:         " + str(round((summed_checkmate / matches_per_iteration),)) + "\n"
         print(msg)
 
