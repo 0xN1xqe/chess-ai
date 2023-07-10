@@ -17,7 +17,7 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # Check if GPU is available
-
+        device = torch.device('cpu')
         # Move the network and input data to the GPU
         self.to(device)
         # Convert input data to PyTorch tensor and float type
