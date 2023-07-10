@@ -29,6 +29,36 @@ class NeuralNetwork(nn.Module):
         x = self.output_layer(x)
         return x
 
+    def load_to_gpu(self):
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # Check if GPU is available
+        # Move the network and input data to the GPU
+        self.to(device)
+
+    def evaluate_all_boards(self, encoded_boards):
+        evaluations = []
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # Check if GPU is available
+        for i in range(len(encoded_boards)):
+            # Convert input data to PyTorch tensor and float type
+            x = torch.from_numpy(encoded_boards[i]).float().to(device)
+            for hidden_layer in self.hidden_layers:
+                x = torch.relu(x)
+            x = self.output_layer(x)
+            evaluations.append(float(x))
+        return evaluations
+
+    def create_copy(self):
+        net = NeuralNetwork(
+            input_size=self.hidden_layers[0].in_features,
+            output_size=self.output_layer.out_features,
+            hidden_sizes=[layer.out_features for layer in self.hidden_layers]
+        )
+
+        # Copy the weights and biases from the current network to the modified network
+        for modified_param, param in zip(net.parameters(), self.parameters()):
+            modified_param.data.copy_(param.data.clone())
+
+        return net
+
     def create_modified_copy(self, modification_factor):
         modified_net = NeuralNetwork(
             input_size=self.hidden_layers[0].in_features,

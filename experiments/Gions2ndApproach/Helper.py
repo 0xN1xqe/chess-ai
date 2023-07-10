@@ -8,6 +8,22 @@ from experiments.Gions2ndApproach.Encoder import Encoder
 
 class Helper:
     @staticmethod
+    def generate_chess_combinations(num_players):
+        combinations = []
+        for i in range(num_players - 1):
+            for j in range(i + 1, num_players):
+                combinations.append([i, j])
+        return combinations
+
+    @staticmethod
+    def sort_indices_by_number_of_wins(combinations, winners, num_players):
+        wins = [0] * num_players
+        for i in range(len(combinations)):
+            wins[combinations[i][winners[i]]] += 1
+        sorted_indices = [index for index, _ in sorted(enumerate(wins), key=lambda x: x[1], reverse=True)]
+        return sorted_indices
+
+    @staticmethod
     def get_all_possible_moves(board):
         possible_moves = []
 
@@ -19,16 +35,11 @@ class Helper:
         return possible_moves
 
     @staticmethod
-    def evaluate_board(model, board):
-        encoded_board = Encoder.board_to_int_array(board)
-        return model.forward(encoded_board)
-
-    @staticmethod
     def evaluate_all_boards(model, boards):
-        evaluations = []
+        encoded_boards = []
         for board in boards:
-            evaluations.append(Helper.evaluate_board(model, board))
-        return evaluations
+            encoded_boards.append(Encoder.board_to_int_array(board))
+        return model.evaluate_all_boards(encoded_boards)
 
     @staticmethod
     def generate_random_integer():
@@ -99,12 +110,20 @@ class Helper:
         return [white_material, black_material]
 
     @staticmethod
-    def append_integers_to_file(path, integer1, integer2, integer3, integer4):
+    def append_integers_to_file(path, integer1, integer2, integer3):
         try:
             with open(path, 'a') as file:
-                line = f"{integer1},{integer2},{integer3},{integer4};"
+                line = f"{integer1},{integer2},{integer3};"
                 file.write(line + '\n')
             print("Integers appended successfully.")
         except IOError:
             print(f"Error: Unable to open or write to the file at path: {path}")
+
+    @staticmethod
+    def print_game_result_v2(iteration, summed_turns, summed_checkmate, matches_per_iteration):
+        msg = "Iteration:              " + str(iteration) + "\n"
+        msg += "Average turns per game: " + str(summed_turns / matches_per_iteration) + "\n"
+        msg += "Checkmate ratio:        " + str(summed_checkmate / matches_per_iteration) + "\n"
+        msg += "----------------------------------------------------------------" + "\n"
+        print(msg)
 

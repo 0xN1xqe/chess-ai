@@ -20,6 +20,7 @@ class Encoder:
         int_array_B = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
         int_array_K = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
         int_array_Q = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+
         for x in board:
             if x == "p":
                 int_array.append(int_array_p)

@@ -10,63 +10,90 @@ class Workflow:
     def work():
         Helper.print_device()
 
-        model_name_1 = "m1_v3"
-        model_name_2 = "m2_v3"
-        models = [StorageHandler.load_model(model_name_1), StorageHandler.load_model(model_name_2)]
+        models = []
+        number_of_models = 4
+        if number_of_models % 2 != 0:
+            raise ValueError("number_of_models has to be an even number")
+
+        for i in range(number_of_models):
+            models.append(StorageHandler.load_model("m"+str(i)))
 
         safe_frequency = ConfigReader.read_save_frequency()
         games_played = 0
-
+        iterations = 0
         summed_moves = 0
         summed_checkmates = 0
-        summed_material = 0
         while True:
-            # start a new game
-            # initialize a new chess board
-            board = chess.Board()
+            boards = []
+            combinations = Helper.generate_chess_combinations(number_of_models)
+            number_of_matches = len(combinations)
+            for i in range(number_of_matches):
+                boards.append(chess.Board())
             turn = 0
-            winner = None
-            checkmate = False
-            material_values = None
+            winners = [-1] * number_of_matches
+
+            for i in range(number_of_models):
+                models[i].load_to_gpu()
+
+            ongoing_matches = number_of_matches
+
             while True:
-                # get all possible moves
-                possible_boards = Helper.get_all_possible_moves(board)
-                # evaluate the state of all boards
-                evaluations = Helper.evaluate_all_boards(models[turn % 2], possible_boards)
-                # if playing white, choose the best board for white
-                if turn % 2 == 0:
-                    board = possible_boards[evaluations.index(max(evaluations))]
-                # if playing black, choose the worst board for white
-                else:
-                    board = possible_boards[evaluations.index(min(evaluations))]
-
-                # check if the game is over
-                if board.is_checkmate():
-                    winner = (turn % 2)
-                    checkmate = True
-                    material_values = Helper.calculate_material(board)
-                    summed_checkmates += 1
+                if ongoing_matches == 0:
                     break
+                for i in range(number_of_matches):
+                    if winners[i] != -1:
+                        continue
+                    possible_boards = Helper.get_all_possible_moves(boards[i])
+                    evaluations = Helper.evaluate_all_boards(models[combinations[i][turn % 2]], possible_boards)
 
-                if board.is_stalemate() or board.is_insufficient_material() or board.is_seventyfive_moves() or board.is_fivefold_repetition():
-                    material_values = Helper.calculate_material(board)
-                    winner = material_values.index(max(material_values))
-                    break
+                    # if playing white, choose the best board for white
+                    if turn % 2 == 0:
+                        boards[i] = possible_boards[evaluations.index(max(evaluations))]
+                    # if playing black, choose the worst board for white
+                    else:
+                        boards[i] = possible_boards[evaluations.index(min(evaluations))]
+
+                    # check if the game is over
+                    if boards[i].is_checkmate():
+                        winners[i] = (turn % 2)
+                        summed_checkmates += 1
+                        summed_moves += turn + 1
+                        ongoing_matches -= 1
+                        break
+
+                    if boards[i].is_stalemate() or boards[i].is_insufficient_material() or boards[i].is_seventyfive_moves() or boards[i].is_fivefold_repetition():
+                        material_values = Helper.calculate_material(boards[i])
+                        winners[i] = material_values.index(max(material_values))
+                        summed_moves += turn + 1
+                        ongoing_matches -= 1
+                        break
 
                 turn = turn + 1
-            summed_moves += turn
-            games_played = games_played + 1
-            summed_material += material_values[0] + material_values[1]
+
+            iterations = iterations + 1
+            games_played = games_played + number_of_matches
+
             # copy the winner and slightly modify the copy
-            models[(winner + 1) % 2] = models[winner].create_modified_copy(ConfigReader.read_modification_factor())
+            indices = Helper.sort_indices_by_number_of_wins(combinations, winners, number_of_models)
+            new_models = []
+            for i in range(number_of_models):
+                if i * 2 < number_of_models:
+                    new_models.append(models[indices[i]].create_copy())
+                else:
+                    new_models.append(models[indices[int(i - number_of_models / 2)]].create_modified_copy(ConfigReader.read_modification_factor()))
+            for i in range(number_of_models):
+                models[i] = new_models[i]
+
+            Helper.print_game_result_v2(iterations, summed_moves, summed_checkmates, number_of_models)
 
             # safe every now and then
             if games_played % safe_frequency == 0:
-                StorageHandler.save_model(models[0], model_name_1)
-                StorageHandler.save_model(models[1], model_name_2)
-                Helper.append_integers_to_file(ConfigReader.read_model_storage_directory() + "\\data_2",summed_moves,summed_checkmates,summed_material,safe_frequency)
+                for i in range(number_of_models):
+                    StorageHandler.save_model(models[i], "m" + str(i))
+                Helper.append_integers_to_file(
+                    ConfigReader.read_model_storage_directory() + "\\logs",
+                    summed_moves, summed_checkmates, safe_frequency)
                 summed_moves = 0
                 summed_checkmates = 0
-                summed_material = 0
 
-            Helper.print_game_result(games_played, turn, material_values, winner, checkmate)
+
