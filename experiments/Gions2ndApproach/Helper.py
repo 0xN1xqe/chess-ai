@@ -18,7 +18,7 @@ class Helper:
             return math.floor(number)  # Round down if decimal part is less than 0.5
 
     @staticmethod
-    def train_models(models, combinations, winners, indices):
+    def train_models(models, combinations, winners):
         number_of_models = len(models)
         num_combinations = len(combinations)
 
@@ -28,20 +28,31 @@ class Helper:
         # Siege für jedes Modell zählen
         for i in range(num_combinations):
             winner_index = winners[i]
+            if winner_index == -2:
+                continue
             wins_count[combinations[i][winner_index]] += 1
 
         # Relative Anzahl der Siege jedes Modells berechnen
         total_wins = sum(wins_count)
-        win_ratios = [wins / total_wins for wins in wins_count]
+        num_copies = [0] * number_of_models
 
-        # Anzahl der Kopien jedes Modells berechnen (proportional zu den Siegen)
-        num_copies = [Helper.custom_round(ratio * number_of_models) for ratio in win_ratios]
+        # wenn keiner gewonnen hat, wird so getan als hätte die erste hälfte gewonnen
+        if total_wins == 0:
+            for i in range(number_of_models):
+                if i * 2 < number_of_models:
+                    num_copies[i] = 2
+                else:
+                    num_copies[i] = 0
+        else:
+            # Anzahl der Kopien jedes Modells berechnen (proportional zu den Siegen)
+            win_ratios = [wins / total_wins for wins in wins_count]
+            num_copies = [Helper.custom_round(ratio * number_of_models) for ratio in win_ratios]
 
-        # Werte ggf. korrigieren
-        if sum(num_copies) != number_of_models:
-            decimals = [x - int(x) for x in win_ratios]
-            max_index = decimals.index(max(decimals))
-            num_copies[max_index] += 1
+            # Werte ggf. korrigieren
+            if sum(num_copies) != number_of_models:
+                decimals = [x - int(x) for x in win_ratios]
+                max_index = decimals.index(max(decimals))
+                num_copies[max_index] += 1
 
         new_models = []
         for i in range(number_of_models):
@@ -52,7 +63,6 @@ class Helper:
                     new_models.append(models[i].create_modified_copy(ConfigReader.read_modification_factor()))
 
         return new_models
-
 
     @staticmethod
     def generate_chess_combinations(num_players):

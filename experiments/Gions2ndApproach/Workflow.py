@@ -70,7 +70,7 @@ class Workflow:
 
                     if boards[i].is_stalemate() or boards[i].is_insufficient_material() or boards[i].is_seventyfive_moves() or boards[i].is_fivefold_repetition():
                         material_values = Helper.calculate_material(boards[i])
-                        winners[i] = material_values.index(max(material_values))
+                        winners[i] = -2
                         ongoing_matches -= 1
                         break
 
@@ -80,8 +80,7 @@ class Workflow:
             games_played = games_played + number_of_matches
 
             # copy the winner and slightly modify the copy
-            indices = Helper.sort_indices_by_number_of_wins(combinations, winners, number_of_models)
-            models = Helper.train_models(models, combinations, winners, indices)
+            models = Helper.train_models(models, combinations, winners)
 
             Helper.print_game_result_v2(iterations, summed_moves_per_iteration, summed_checkmates_per_iteration, number_of_matches)
             summed_moves_per_iteration = 0
