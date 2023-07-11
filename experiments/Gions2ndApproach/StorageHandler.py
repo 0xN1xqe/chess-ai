@@ -18,10 +18,10 @@ class StorageHandler:
     def load_model(model_name):
         try:
             # Load the model from a file
-            net = NNFactory.create_v2()
+            net = NNFactory.create_v3()
             net.load_state_dict(torch.load(ConfigReader.read_model_storage_directory() + "\\" + model_name))
             print("Loaded model")
             return net
         except Exception as e:
             print("Failed to load model (" + str(e) + "), create one instead")
-            return NNFactory.create_v2()
+            return NNFactory.create_v3()

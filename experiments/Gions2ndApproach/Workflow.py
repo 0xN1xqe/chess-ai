@@ -12,7 +12,7 @@ class Workflow:
         Helper.print_device()
 
         models = []
-        number_of_models = 4
+        number_of_models = 8
         if number_of_models % 2 != 0:
             raise ValueError("number_of_models has to be an even number")
 
@@ -81,14 +81,7 @@ class Workflow:
 
             # copy the winner and slightly modify the copy
             indices = Helper.sort_indices_by_number_of_wins(combinations, winners, number_of_models)
-            new_models = []
-            for i in range(number_of_models):
-                if i * 2 < number_of_models:
-                    new_models.append(models[indices[i]].create_copy())
-                else:
-                    new_models.append(models[indices[int(i - number_of_models / 2)]].create_modified_copy(ConfigReader.read_modification_factor()))
-            for i in range(number_of_models):
-                models[i] = new_models[i]
+            models = Helper.train_models(models, combinations, winners, indices)
 
             Helper.print_game_result_v2(iterations, summed_moves_per_iteration, summed_checkmates_per_iteration, number_of_matches)
             summed_moves_per_iteration = 0

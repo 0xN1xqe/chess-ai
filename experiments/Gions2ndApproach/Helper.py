@@ -1,12 +1,59 @@
 import random
+import math
 
 import chess
 import torch
 
+from experiments.Gions2ndApproach.ConfigReader import ConfigReader
 from experiments.Gions2ndApproach.Encoder import Encoder
 
 
 class Helper:
+    @staticmethod
+    def custom_round(number):
+        decimal_part = number - math.floor(number)  # Extract the decimal part
+        if decimal_part >= 0.5:
+            return math.ceil(number)  # Round up if decimal part is greater than or equal to 0.5
+        else:
+            return math.floor(number)  # Round down if decimal part is less than 0.5
+
+    @staticmethod
+    def train_models(models, combinations, winners, indices):
+        number_of_models = len(models)
+        num_combinations = len(combinations)
+
+        # Zähler für die Anzahl der Siege jedes Modells initialisieren
+        wins_count = [0] * number_of_models
+
+        # Siege für jedes Modell zählen
+        for i in range(num_combinations):
+            winner_index = winners[i]
+            wins_count[combinations[i][winner_index]] += 1
+
+        # Relative Anzahl der Siege jedes Modells berechnen
+        total_wins = sum(wins_count)
+        win_ratios = [wins / total_wins for wins in wins_count]
+
+        # Anzahl der Kopien jedes Modells berechnen (proportional zu den Siegen)
+        num_copies = [Helper.custom_round(ratio * number_of_models) for ratio in win_ratios]
+
+        # Werte ggf. korrigieren
+        if sum(num_copies) != number_of_models:
+            decimals = [x - int(x) for x in win_ratios]
+            max_index = decimals.index(max(decimals))
+            num_copies[max_index] += 1
+
+        new_models = []
+        for i in range(number_of_models):
+            for q in range(num_copies[i]):
+                if q == 0 and num_copies[i] != 1:
+                    new_models.append(models[i].create_copy())
+                else:
+                    new_models.append(models[i].create_modified_copy(ConfigReader.read_modification_factor()))
+
+        return new_models
+
+
     @staticmethod
     def generate_chess_combinations(num_players):
         combinations = []
@@ -122,7 +169,7 @@ class Helper:
     @staticmethod
     def print_game_result_v2(iteration, summed_turns, summed_checkmate, matches_per_iteration):
         msg = "Iteration:               " + str(iteration) + "\n"
-        msg += "Average turns per game:  " + str(round((summed_turns / matches_per_iteration),1)) + "\n"
-        msg += "Checkmate ratio:         " + str(round((summed_checkmate / matches_per_iteration),)) + "\n"
+        msg += "Average turns per game:  " + str(round((summed_turns / matches_per_iteration), 1)) + "\n"
+        msg += "Checkmate ratio:         " + str(round((summed_checkmate / matches_per_iteration),3)) + "\n"
         print(msg)
 
