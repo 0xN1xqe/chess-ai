@@ -51,7 +51,7 @@ class Workflow:
                     evaluations = Helper.evaluate_all_boards(models[combinations[i][turn % 2]], possible_boards)
 
                     # if playing white, choose the best board for white
-                    if turn % 2 == 0:
+                    if boards[i].turn == chess.WHITE:
                         boards[i] = possible_boards[evaluations.index(max(evaluations))]
                     # if playing black, choose the worst board for white
                     else:
@@ -62,14 +62,13 @@ class Workflow:
 
                     # check if the game is over
                     if boards[i].is_checkmate():
-                        winners[i] = (turn % 2)
+                        winners[i] = Helper.determine_winner(boards[i])
                         summed_checkmates_per_iteration += 1
                         summed_checkmates += 1
                         ongoing_matches -= 1
                         break
 
                     if boards[i].is_stalemate() or boards[i].is_insufficient_material() or boards[i].is_seventyfive_moves() or boards[i].is_fivefold_repetition():
-                        material_values = Helper.calculate_material(boards[i])
                         winners[i] = -2
                         ongoing_matches -= 1
                         break
@@ -90,9 +89,9 @@ class Workflow:
             if iterations % safe_frequency == 0:
                 for i in range(number_of_models):
                     StorageHandler.save_model(models[i], "m" + str(i))
-                Helper.append_integers_to_file(
+                Helper.log(
                     ConfigReader.read_model_storage_directory() + "\\logs",
-                    summed_moves, summed_checkmates, safe_frequency)
+                    summed_moves, summed_checkmates, safe_frequency, number_of_matches)
                 summed_moves = 0
                 summed_checkmates = 0
 

@@ -10,6 +10,16 @@ from experiments.Gions2ndApproach.Encoder import Encoder
 
 class Helper:
     @staticmethod
+    def determine_winner(board):
+        result = board.result()
+        if result == "1-0":
+            return 0  # White won
+        elif result == "0-1":
+            return 1  # Black won
+        else:
+            return None  # No winner yet
+
+    @staticmethod
     def custom_round(number):
         decimal_part = number - math.floor(number)  # Extract the decimal part
         if decimal_part >= 0.5:
@@ -167,10 +177,12 @@ class Helper:
         return [white_material, black_material]
 
     @staticmethod
-    def append_integers_to_file(path, integer1, integer2, integer3):
+    def log(path, summed_moves, summed_checkmates, safe_frequency, number_of_matches):
         try:
             with open(path, 'a') as file:
-                line = f"{integer1},{integer2},{integer3};"
+                average_turns = summed_moves / (safe_frequency * number_of_matches)
+                checkmate_percentage = summed_checkmates / (safe_frequency * number_of_matches)
+                line = f"{average_turns},{checkmate_percentage};"
                 file.write(line + '\n')
             print("Integers appended successfully.")
         except IOError:
