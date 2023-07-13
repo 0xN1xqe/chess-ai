@@ -127,12 +127,12 @@ def evaluate_values_and_positions(board, is_white, values_param, positions_param
                     if piece.piece_type != 6:
                         values_score += value
                 else:
-                    positions_score -= positions[square]
+                    positions_score -= list(reversed(positions))[square]
                     if piece.piece_type != 6:
                         values_score -= value
             else:
                 if piece.color == chess.BLACK:
-                    positions_score += positions[square]
+                    positions_score += list(reversed(positions))[square]
                     if piece.piece_type != 6:
                         values_score += value
                 else:
