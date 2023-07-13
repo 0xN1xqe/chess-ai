@@ -25,8 +25,10 @@ class ChessGUI(QMainWindow):
         self.depth = 3
 
         # evaluation weights
-        self.values_param = 0.5
-        self.position_param = 0.04
+        self.values_param_white = 1
+        self.position_param_white = 0.4
+        self.values_param_black = 1
+        self.position_param_black = 0.2
 
         # Load the initial chessboard SVG image
         self.update_board_image()
@@ -188,8 +190,14 @@ class ChessGUI(QMainWindow):
         print(f"Game over! Result: {result.result()}")
         self.start_button.setEnabled(True)
 
-    def bot_move(self):
-        move = find_best_move(self.board, self.depth, self.current_player, self.values_param, self.position_param)
+    def bot_move(self, alone=False):
+        if alone:
+            QApplication.processEvents()
+
+        if self.current_player:
+            move = find_best_move(self.board, self.depth, self.current_player, self.values_param_white, self.position_param_white)
+        else:
+            move = find_best_move(self.board, self.depth, self.current_player, self.values_param_black, self.position_param_black)
         self.board.push(move)
 
     def paintEvent(self, event):
