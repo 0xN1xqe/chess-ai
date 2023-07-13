@@ -4,7 +4,7 @@ pandas
 numpy~=1.24.0
 matplotlib
 pygame
-
+cairosvg
 tensorflow~=2.12.0
 keras~=2.12.0
 chess~=1.9.4
