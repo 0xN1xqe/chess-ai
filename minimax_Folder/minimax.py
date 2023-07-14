@@ -106,13 +106,13 @@ def evaluate_values_and_positions(board, is_white, values_param, positions_param
         chess.QUEEN: 9
     }
 
-    number_to_pieces = {
+    number_to_piece_positions = {
         1: p.Pawn,
         2: p.Knight,
         3: p.Bishop,
         4: p.Rook,
         5: p.Queen,
-        6: p.KingEarly if len(board.move_stack) < 20 else p.KingLate,
+        6: p.KingEarly if len(board.move_stack) < 25 else p.KingLate,
     }
 
     for square in chess.SQUARES:
@@ -120,7 +120,7 @@ def evaluate_values_and_positions(board, is_white, values_param, positions_param
         # ignore all pieces that are none or king
         if piece is not None:
             value = piece_values.get(piece.piece_type)
-            positions = number_to_pieces.get(piece.piece_type)
+            positions = number_to_piece_positions.get(piece.piece_type)
             if is_white:
                 if piece.color == chess.WHITE:
                     positions_score += positions[square]
