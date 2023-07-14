@@ -26,9 +26,9 @@ class ChessGUI(QMainWindow):
 
         # evaluation weights
         self.values_param_white = 1
-        self.position_param_white = 0.4
+        self.position_param_white = 0.03
         self.values_param_black = 1
-        self.position_param_black = 0.2
+        self.position_param_black = 0.06
 
         # Load the initial chessboard SVG image
         self.update_board_image()
